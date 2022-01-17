@@ -766,7 +766,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "wrk_plot"
+name = "wrkviz"
 version = "0.1.0"
 dependencies = [
  "nom",
