@@ -1,6 +1,6 @@
 [package]
 name = "wrkviz"
-version = "0.1.0"
+version = "0.0.1"
 
 edition = "2021"
 
@@ -8,4 +8,4 @@ edition = "2021"
 
 [dependencies]
 nom = "7"
-plotters = "0.3"
+plotters = { version = "0.3", default_features = false, features = [ "bitmap_backend", "bitmap_encoder", "chrono", "ttf", "image", "all_series", "all_elements"] }
