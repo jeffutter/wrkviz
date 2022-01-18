@@ -22,43 +22,62 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let (_rest, reports) = parser::parse(&*buffer).unwrap();
 
+    let max_y = reports.iter().fold(f32::MIN, |acc, report| {
+        let m = report
+            .detailed_latency
+            .iter()
+            .scan(0f32, |prev, (_ms, _, count, _)| {
+                let count_diff = (*count as f32) - *prev;
+                *prev = *count as f32;
+
+                Some(count_diff)
+            })
+            .fold(f32::MIN, |a, b| a.max(b));
+        acc.max(m)
+    }) * (reports.iter().len() as f32);
+
     let root = BitMapBackend::new(filen, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&root)
         .caption("Latency", ("sans-serif", 30).into_font())
         .margin(5)
         .x_label_area_size(35)
-        .y_label_area_size(60)
-        .build_cartesian_2d(reports.min_x()..reports.max_x(), 0f32..reports.max_y())?;
+        // .y_label_area_size(60)
+        .build_cartesian_2d(0.0..reports.max_x(), (max_y * -1.0)..max_y)?;
 
     chart
         .configure_mesh()
-        .x_desc("Percentile")
-        .y_desc("Milliseconds")
+        .x_desc("Milliseconds")
+        .y_desc("Request Count")
+        .x_label_formatter(&|v: &f32| (v.round() as usize).to_string())
         .draw()?;
 
     for (idx, report) in reports.iter().enumerate() {
-        let color = Palette99::pick(idx);
+        let base = idx as f32 * (max_y / 2f32);
 
-        let mut data = report
+        let data: Vec<(f32, f32)> = report
             .detailed_latency
             .iter()
-            .map(|(ms, pct, _, _)| (pct * 100.0, *ms));
+            .scan(0f32, |prev, (ms, _, count, _)| {
+                let count_diff = (*count as f32) - *prev;
+                *prev = *count as f32;
 
-        chart
-            .draw_series(LineSeries::new(&mut data, &color))?
-            .label(format!("{} req/sec", report.req_s))
-            .legend(move |(x, y)| {
-                let color = Palette99::pick(idx);
-                PathElement::new(vec![(x, y), (x + 20, y)], color)
-            });
+                Some((*ms, count_diff))
+            })
+            .collect();
+
+        chart.draw_series(AreaSeries::new(
+            data.iter().map(|(x, y)| (*x, base + *y / 2.0)),
+            base,
+            Palette99::pick(idx),
+        ))?;
+
+        chart.draw_series(AreaSeries::new(
+            data.iter().map(|(x, y)| (*x, base - *y / 2.0)),
+            base,
+            Palette99::pick(idx),
+        ))?;
     }
-
-    chart
-        .configure_series_labels()
-        .background_style(&WHITE.mix(0.8))
-        .border_style(&BLACK)
-        .draw()?;
 
     Ok(())
 }

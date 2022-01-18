@@ -14,19 +14,19 @@ impl Report<'_> {
     fn min_x(&self) -> f32 {
         self.detailed_latency
             .iter()
-            .fold(f32::MAX, |a, (_, b, _, _)| a.min(*b * 100.0))
+            .fold(f32::MAX, |a, (_, b, _, _)| a.min(*b))
     }
 
     fn max_x(&self) -> f32 {
         self.detailed_latency
             .iter()
-            .fold(f32::MIN, |a, (_, b, _, _)| a.max(*b * 100.0))
+            .fold(f32::MIN, |a, (ms, _pct, _count, _)| a.max(*ms))
     }
 
     fn max_y(&self) -> f32 {
         self.detailed_latency
             .iter()
-            .fold(f32::MIN, |a, (b, _, _, _)| a.max(*b))
+            .fold(f32::MIN, |a, (_ms, _pct, count, _)| a.max(*count as f32))
     }
 }
 
