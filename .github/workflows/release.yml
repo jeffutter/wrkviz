@@ -27,6 +27,11 @@ jobs:
           rust: stable
           target: x86_64-apple-darwin
           contanier: ''
+        - build: macos-aarch64
+          os: macos-latest
+          rust: stable
+          target: aarch64-apple-darwin
+          container: ''
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
