@@ -1,4 +1,4 @@
-use std::slice::Iter;
+use std::{ops::Index, slice::Iter};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -57,5 +57,17 @@ impl<'a> Reports<'a> {
 
     pub fn iter(&self) -> Iter<Report> {
         self.0.iter()
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+}
+
+impl<'a> Index<usize> for Reports<'a> {
+    type Output = Report<'a>;
+
+    fn index(&self, idx: usize) -> &Self::Output {
+        &self.0[idx]
     }
 }

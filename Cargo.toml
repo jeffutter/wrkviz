@@ -8,4 +8,6 @@ edition = "2021"
 
 [dependencies]
 nom = "7"
-plotters = { version = "0.3", default_features = false, features = [ "bitmap_backend", "bitmap_encoder", "chrono", "ttf", "image", "all_series", "all_elements"] }
+plotters = { version = "0.3", default_features = false, features = [ "svg_backend", "bitmap_backend", "bitmap_encoder", "chrono", "ttf", "image", "all_series", "all_elements"] }
+csaps = "0.3"
+itertools = "0.10"
