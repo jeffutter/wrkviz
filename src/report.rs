@@ -11,22 +11,22 @@ pub struct Report<'a> {
 }
 
 impl Report<'_> {
-    fn min_x(&self) -> f32 {
+    fn min_pct(&self) -> f32 {
         self.detailed_latency
             .iter()
-            .fold(f32::MAX, |a, (_, b, _, _)| a.min(*b))
+            .fold(f32::MAX, |a, (_ms, pct, _count, _)| a.min(*pct * 100.0))
     }
 
-    fn max_x(&self) -> f32 {
+    fn max_pct(&self) -> f32 {
+        self.detailed_latency
+            .iter()
+            .fold(f32::MIN, |a, (_ms, pct, _count, _)| a.max(*pct * 100.00))
+    }
+
+    fn max_latency(&self) -> f32 {
         self.detailed_latency
             .iter()
             .fold(f32::MIN, |a, (ms, _pct, _count, _)| a.max(*ms))
-    }
-
-    fn max_y(&self) -> f32 {
-        self.detailed_latency
-            .iter()
-            .fold(f32::MIN, |a, (_ms, _pct, count, _)| a.max(*count as f32))
     }
 }
 
@@ -37,22 +37,22 @@ impl<'a> Reports<'a> {
         Self(reports)
     }
 
-    pub fn min_x(&self) -> f32 {
+    pub fn min_pct(&self) -> f32 {
         self.0
             .iter()
-            .fold(f32::MAX, |a, report| report.min_x().min(a))
+            .fold(f32::MAX, |a, report| report.min_pct().min(a))
     }
 
-    pub fn max_x(&self) -> f32 {
+    pub fn max_pct(&self) -> f32 {
         self.0
             .iter()
-            .fold(f32::MIN, |a, report| report.max_x().max(a))
+            .fold(f32::MIN, |a, report| report.max_pct().max(a))
     }
 
-    pub fn max_y(&self) -> f32 {
+    pub fn max_latency(&self) -> f32 {
         self.0
             .iter()
-            .fold(f32::MIN, |a, report| report.max_y().max(a))
+            .fold(f32::MIN, |a, report| report.max_latency().max(a))
     }
 
     pub fn iter(&self) -> Iter<Report> {
