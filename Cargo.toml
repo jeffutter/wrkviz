@@ -12,4 +12,4 @@ plotters = { version = "0.3", default_features = false, features = [ "svg_backen
 csaps = "0.3"
 itertools = "0.10"
 clap = { version = "3", features = [ "derive" ] }
-self_update = "0.28"
+self_update = { version = "0.28.0", default_features = false, features = [ "rustls" ] }
