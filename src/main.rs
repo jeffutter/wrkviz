@@ -6,7 +6,9 @@ mod violin;
 
 use clap::Parser;
 use renderer::{Renderer, RendererInput};
-use std::io::{self, Read};
+use report::Reports;
+use std::fs;
+use std::path::PathBuf;
 
 #[macro_use]
 extern crate self_update;
@@ -16,6 +18,9 @@ extern crate self_update;
 struct Args {
     #[clap(short, long)]
     update: bool,
+
+    #[clap(parse(from_os_str), required_unless_present = "update")]
+    files: Vec<PathBuf>,
 
     #[clap(short, long, required_unless_present = "update")]
     filename: Option<String>,
@@ -46,13 +51,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return update();
     };
 
-    let mut stdin = io::stdin();
-    let mut buffer = String::new();
-    if stdin.read_to_string(&mut buffer).is_err() {
-        println!("Unable to read input");
-        return Ok(());
+    let mut reports = Reports::new(vec![]);
+    for path in args.files {
+        let data = fs::read_to_string(&path).unwrap();
+        let (_rest, inner_reports) = parser::parse(&data).unwrap();
+        for mut report in inner_reports {
+            if let Some(filename) = path.file_name() {
+                report.set_filename(filename.to_string_lossy().to_string());
+            }
+            reports.push(report.clone());
+        }
     }
-    let (_rest, reports) = parser::parse(&*buffer).unwrap();
 
     let filename = &args.filename.unwrap();
     let renderer = Renderer::new(args.renderer, reports, filename);

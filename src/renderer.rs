@@ -8,13 +8,13 @@ pub enum RendererInput {
     Line,
 }
 
-pub enum Renderer<'a, 'b> {
-    Violin(violin::Violin<'a, 'b>),
-    Line(line::Line<'a, 'b>),
+pub enum Renderer<'a> {
+    Violin(violin::Violin<'a>),
+    Line(line::Line<'a>),
 }
 
-impl<'a, 'b> Renderer<'a, 'b> {
-    pub fn new(input: RendererInput, reports: report::Reports<'a>, filename: &'b str) -> Self {
+impl<'a> Renderer<'a> {
+    pub fn new(input: RendererInput, reports: report::Reports, filename: &'a str) -> Self {
         match input {
             RendererInput::Violin => Renderer::Violin(violin::Violin::new(reports, filename)),
             RendererInput::Line => Renderer::Line(line::Line::new(reports, filename)),

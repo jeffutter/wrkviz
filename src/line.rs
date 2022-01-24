@@ -1,13 +1,13 @@
 use crate::report::Reports;
 use plotters::prelude::*;
 
-pub struct Line<'a, 'b> {
-    reports: Reports<'a>,
-    filename: &'b str,
+pub struct Line<'a> {
+    reports: Reports,
+    filename: &'a str,
 }
 
-impl<'a, 'b> Line<'a, 'b> {
-    pub fn new(reports: Reports<'a>, filename: &'b str) -> Self {
+impl<'a> Line<'a> {
+    pub fn new(reports: Reports, filename: &'a str) -> Self {
         Self { reports, filename }
     }
 
@@ -39,12 +39,24 @@ impl<'a, 'b> Line<'a, 'b> {
                 .iter()
                 .map(|(ms, pct, _, _)| (pct * 100.0, *ms));
 
+            let label = match &report.filename {
+                Some(filename) => {
+                    format!(
+                        "{}, {} connections {} req/sec",
+                        filename, report.connections, report.req_s
+                    )
+                }
+                None => {
+                    format!(
+                        "{}, {} connections {} req/sec",
+                        report.website, report.connections, report.req_s
+                    )
+                }
+            };
+
             chart
                 .draw_series(LineSeries::new(&mut data, &color))?
-                .label(format!(
-                    "{}, {} connections {} req/sec",
-                    report.website, report.connections, report.req_s
-                ))
+                .label(label)
                 .legend(move |(x, y)| {
                     let color = Palette99::pick(idx);
                     PathElement::new(vec![(x, y), (x + 20, y)], color)

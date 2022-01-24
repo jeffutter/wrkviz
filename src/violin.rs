@@ -5,13 +5,13 @@ use plotters::prelude::*;
 
 const DARK_BLUE: RGBColor = RGBColor(31, 120, 180);
 
-pub struct Violin<'a, 'b> {
-    reports: Reports<'a>,
-    filename: &'b str,
+pub struct Violin<'a> {
+    reports: Reports,
+    filename: &'a str,
 }
 
-impl<'a, 'b> Violin<'a, 'b> {
-    pub fn new(reports: Reports<'a>, filename: &'b str) -> Self {
+impl<'a> Violin<'a> {
+    pub fn new(reports: Reports, filename: &'a str) -> Self {
         Self { reports, filename }
     }
 
@@ -34,7 +34,14 @@ impl<'a, 'b> Violin<'a, 'b> {
         let y_label_formatter = |v: &f32| {
             let report = &reports[v.round() as usize];
 
-            format!("{}, {} connections", report.website, report.connections)
+            match &report.filename {
+                Some(filename) => {
+                    format!("{}, {} connections", filename, report.connections)
+                }
+                None => {
+                    format!("{}, {} connections", report.website, report.connections)
+                }
+            }
         };
 
         chart

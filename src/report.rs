@@ -2,17 +2,18 @@ use std::{ops::Index, slice::Iter};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
-pub struct Report<'a> {
-    pub website: &'a str,
+pub struct Report {
+    pub website: String,
     pub req_s: f32,
     pub hdr_histogram: Vec<(f32, f32)>,
     pub detailed_latency: Vec<(f32, f32, u32, f32)>,
     pub duration: u32,
     pub connections: u32,
     pub threads: u32,
+    pub filename: Option<String>,
 }
 
-impl Report<'_> {
+impl Report {
     fn min_pct(&self) -> f32 {
         self.detailed_latency
             .iter()
@@ -30,14 +31,22 @@ impl Report<'_> {
             .iter()
             .fold(f32::MIN, |a, (ms, _pct, _count, _)| a.max(*ms))
     }
+
+    pub fn set_filename(&mut self, filename: String) {
+        self.filename = Some(filename);
+    }
 }
 
-#[derive(Debug)]
-pub struct Reports<'a>(Vec<Report<'a>>);
+#[derive(Debug, Clone)]
+pub struct Reports(Vec<Report>);
 
-impl<'a> Reports<'a> {
-    pub fn new(reports: Vec<Report<'a>>) -> Self {
+impl Reports {
+    pub fn new(reports: Vec<Report>) -> Self {
         Self(reports)
+    }
+
+    pub fn push(&mut self, report: Report) {
+        self.0.push(report);
     }
 
     pub fn min_pct(&self) -> f32 {
@@ -67,10 +76,19 @@ impl<'a> Reports<'a> {
     }
 }
 
-impl<'a> Index<usize> for Reports<'a> {
-    type Output = Report<'a>;
+impl Index<usize> for Reports {
+    type Output = Report;
 
     fn index(&self, idx: usize) -> &Self::Output {
         &self.0[idx]
+    }
+}
+
+impl IntoIterator for Reports {
+    type Item = Report;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }

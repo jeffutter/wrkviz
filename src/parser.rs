@@ -102,13 +102,14 @@ fn report(s: &str) -> IResult<&str, Report> {
     Ok((
         rest,
         Report {
-            website,
+            website: website.to_string(),
             duration,
             hdr_histogram,
             detailed_latency,
             req_s,
             threads,
             connections,
+            filename: None,
         },
     ))
 }
