@@ -1,4 +1,3 @@
-use crate::renderer::Renderer;
 use crate::report::Reports;
 use plotters::prelude::*;
 
@@ -11,10 +10,8 @@ impl<'a, 'b> Line<'a, 'b> {
     pub fn new(reports: Reports<'a>, filename: &'b str) -> Self {
         Self { reports, filename }
     }
-}
 
-impl<'a, 'b> Renderer<'a, 'b> for Line<'a, 'b> {
-    fn render(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn render(&self) -> Result<(), Box<dyn std::error::Error>> {
         let size = (960, 720);
         let root = SVGBackend::new(self.filename, size).into_drawing_area();
 

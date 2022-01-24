@@ -4,20 +4,12 @@ mod renderer;
 mod report;
 mod violin;
 
-use crate::line::Line;
-use crate::renderer::Renderer;
-use crate::violin::Violin;
 use clap::Parser;
+use renderer::{Renderer, RendererInput};
 use std::io::{self, Read};
 
 #[macro_use]
 extern crate self_update;
-
-#[derive(clap::ArgEnum, Clone, Debug)]
-enum RenderEnum {
-    Violin,
-    Line,
-}
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -28,8 +20,8 @@ struct Args {
     #[clap(short, long, required_unless_present = "update")]
     filename: Option<String>,
 
-    #[clap(arg_enum, short, long, default_value_t = RenderEnum::Line)]
-    renderer: RenderEnum,
+    #[clap(arg_enum, short, long, default_value_t = RendererInput::Line)]
+    renderer: RendererInput,
 }
 
 fn update() -> Result<(), Box<dyn std::error::Error>> {
@@ -63,10 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (_rest, reports) = parser::parse(&*buffer).unwrap();
 
     let filename = &args.filename.unwrap();
-    let renderer: Box<dyn Renderer> = match args.renderer {
-        RenderEnum::Violin => Box::new(Violin::new(reports, filename)),
-        RenderEnum::Line => Box::new(Line::new(reports, filename)),
-    };
+    let renderer = Renderer::new(args.renderer, reports, filename);
 
     renderer.render()
 }

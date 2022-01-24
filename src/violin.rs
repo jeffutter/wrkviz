@@ -1,4 +1,3 @@
-use crate::renderer::Renderer;
 use crate::report::Reports;
 use csaps::CubicSmoothingSpline;
 use itertools::Itertools;
@@ -15,10 +14,8 @@ impl<'a, 'b> Violin<'a, 'b> {
     pub fn new(reports: Reports<'a>, filename: &'b str) -> Self {
         Self { reports, filename }
     }
-}
 
-impl<'a, 'b> Renderer<'a, 'b> for Violin<'a, 'b> {
-    fn render(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn render(&self) -> Result<(), Box<dyn std::error::Error>> {
         let reports = &self.reports;
         let filen = self.filename;
         let x_range = 0.0..reports.max_latency();
