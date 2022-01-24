@@ -34,12 +34,18 @@ impl<'a, 'b> Renderer<'a, 'b> for Violin<'a, 'b> {
             .set_label_area_size(LabelAreaPosition::Bottom, (5).percent_width().min(40))
             .build_cartesian_2d(x_range, y_range)?;
 
+        let y_label_formatter = |v: &f32| {
+            let report = &reports[v.round() as usize];
+
+            format!("{}, {} connections", report.website, report.connections)
+        };
+
         chart
             .configure_mesh()
             .disable_mesh()
             .y_desc("Input")
             .x_desc("Latency (ms)")
-            .y_label_formatter(&|v: &f32| reports[v.round() as usize].website.to_string())
+            .y_label_formatter(&y_label_formatter)
             .y_labels(reports.len())
             .x_label_formatter(&|v: &f32| (v.round() as usize).to_string())
             .draw()?;

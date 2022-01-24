@@ -67,8 +67,22 @@ fn detailed_latency(s: &str) -> IResult<&str, Vec<(f32, f32, u32, f32)>> {
     )(s)
 }
 
+fn threads_connections(s: &str) -> IResult<&str, (u32, u32)> {
+    let (rest, (threads, _, connections, _)) = preceded(
+        multispace0,
+        tuple((
+            map_res(digit1, |s: &str| s.parse::<u32>()),
+            tag(" threads and "),
+            map_res(digit1, |s: &str| s.parse::<u32>()),
+            tag(" connections"),
+        )),
+    )(s)?;
+    Ok((rest, (threads, connections)))
+}
+
 fn report(s: &str) -> IResult<&str, Report> {
     let (rest, (duration, website)) = start_line(s)?;
+    let (rest, (threads, connections)) = threads_connections(rest)?;
     let (rest, _) = take_until("Latency Distribution (HdrHistogram - Recorded Latency)")(rest)?;
     let (rest, _) = terminated(not_line_ending, line_ending)(rest)?;
     let (rest, hdr_histogram) = hdr_histogram(rest)?;
@@ -93,6 +107,8 @@ fn report(s: &str) -> IResult<&str, Report> {
             hdr_histogram,
             detailed_latency,
             req_s,
+            threads,
+            connections,
         },
     ))
 }

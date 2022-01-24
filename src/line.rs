@@ -44,7 +44,10 @@ impl<'a, 'b> Renderer<'a, 'b> for Line<'a, 'b> {
 
             chart
                 .draw_series(LineSeries::new(&mut data, &color))?
-                .label(format!("{} req/sec", report.req_s))
+                .label(format!(
+                    "{}, {} connections {} req/sec",
+                    report.website, report.connections, report.req_s
+                ))
                 .legend(move |(x, y)| {
                     let color = Palette99::pick(idx);
                     PathElement::new(vec![(x, y), (x + 20, y)], color)

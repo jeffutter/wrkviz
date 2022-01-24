@@ -8,6 +8,8 @@ pub struct Report<'a> {
     pub hdr_histogram: Vec<(f32, f32)>,
     pub detailed_latency: Vec<(f32, f32, u32, f32)>,
     pub duration: u32,
+    pub connections: u32,
+    pub threads: u32,
 }
 
 impl Report<'_> {
@@ -30,6 +32,7 @@ impl Report<'_> {
     }
 }
 
+#[derive(Debug)]
 pub struct Reports<'a>(Vec<Report<'a>>);
 
 impl<'a> Reports<'a> {
