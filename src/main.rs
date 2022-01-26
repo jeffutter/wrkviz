@@ -51,17 +51,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return update();
     };
 
-    let mut reports = Reports::new(vec![]);
-    for path in args.files {
-        let data = fs::read_to_string(&path).unwrap();
-        let (_rest, inner_reports) = parser::parse(&data).unwrap();
-        for mut report in inner_reports {
+    let reports: Reports = args
+        .files
+        .iter()
+        .flat_map(|path| {
+            let data = fs::read_to_string(&path).unwrap();
+
+            let (_rest, mut reports) = parser::parse(&data).unwrap();
+
             if let Some(filename) = path.file_name() {
-                report.set_filename(filename.to_string_lossy().to_string());
+                reports.iter_mut().for_each(|report| {
+                    report.set_filename(filename.to_string_lossy().to_string());
+                })
             }
-            reports.push(report.clone());
-        }
-    }
+
+            reports
+        })
+        .collect();
 
     let filename = &args.filename.unwrap();
     let renderer = Renderer::new(args.renderer, reports, filename);

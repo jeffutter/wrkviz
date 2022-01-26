@@ -1,4 +1,4 @@
-use std::{ops::Index, slice::Iter};
+use std::{ops::Index, slice::Iter, slice::IterMut};
 
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -45,10 +45,6 @@ impl Reports {
         Self(reports)
     }
 
-    pub fn push(&mut self, report: Report) {
-        self.0.push(report);
-    }
-
     pub fn min_pct(&self) -> f32 {
         self.0
             .iter()
@@ -71,6 +67,10 @@ impl Reports {
         self.0.iter()
     }
 
+    pub fn iter_mut(&mut self) -> IterMut<Report> {
+        self.0.iter_mut()
+    }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }
@@ -90,5 +90,17 @@ impl IntoIterator for Reports {
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
+    }
+}
+
+impl FromIterator<Report> for Reports {
+    fn from_iter<I: IntoIterator<Item = Report>>(iter: I) -> Self {
+        let mut c = Vec::new();
+
+        for i in iter {
+            c.push(i);
+        }
+
+        Reports(c)
     }
 }
