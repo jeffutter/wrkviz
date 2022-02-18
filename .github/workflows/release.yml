@@ -38,6 +38,11 @@ jobs:
       with:
         fetch-depth: 1
 
+    - name: Install deps
+      if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
+      run: |
+        apk add -U cmake make build-base tar freetype pkgconfig freetype-dev expat-dev
+
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -47,11 +52,6 @@ jobs:
           ~/.rustup
           target
         key: ${{ runner.os }}-${{ matrix.rust }}
-
-    - name: Install deps
-      if: ${{ matrix.target == 'x86_64-unknown-linux-musl' }}
-      run: |
-        apk add -U cmake make build-base freetype pkgconfig freetype-dev expat-dev
 
     - name: Install Rust
       run: |
